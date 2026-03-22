@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스마트 보건실</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+
+  <div id="maintenance-overlay" class="maintenance-mode">
+  <div class="maintenance-content">
+    <i class="fa-solid fa-gears" style="font-size: 5rem; margin-bottom: 20px;"></i>
+    <h1>시스템 점검 중</h1>
+    <p>현재 서비스 점검으로 인해<br>잠시 사용이 중단되었습니다.</p>
+    <p class="maintenance-time">재개 예정: 점검 종료 후 공지 시까지</p>
+    <button onclick="document.getElementById('maintenance-overlay').style.display='none'" style="background:none; border:none; color:rgba(255,255,255,0.3); cursor:default;">선생님 전용</button>
+  </div>
+  </div>
+
+
+
+
+
+  <div class="background-gradient"></div>
+  <div class="glass-container">
+    
+    <div class="left-panel">
+      <div class="left-footer">
+        <p style="font-size: 3rem; position: relative; margin-bottom: 5px;">
+          <i style="margin-bottom: 10px;" class="fa-solid fa-school"></i> 스마트 보건실
+        </p>
+         <p style="font-size: 2rem; margin-top: -1vh;" class="byCC">By Coding Class_
+         </p>
+      </div>
+
+      <div class="circle-widget">
+        <div class="widget-content">
+          <p class="widget-title">현재 대기</p>
+          <div id="main-wait-info">
+            <h1 id="main-wait-count" class="widget-number">0</h1>
+          </div>
+        </div>
+      </div>
+
+      <div id="weather-box" class="weather-pill">
+        <i id="w-icon" class="fa-solid fa-spinner fa-spin"></i>
+        <span id="w-temp">날씨 확인 중...</span>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      
+      <div id="view-login" class="view">
+        <div style="margin-top: -3vh;" class="view-header">
+          <h3>안녕하세요! <br>오늘도 좋은 하루 보내세요!</h3>
+        </div>
+        <div class="app-grid">
+          <button class="app-icon-btn student" onclick="showView('view-student')">
+            <div class="icon-box">
+              <i class="fa-solid fa-user-pen"></i>
+            </div>
+            <span>진료 접수</span>
+          </button>
+
+          <button class="app-icon-btn admin" onclick="showView('view-teacher-login')">
+            <div class="icon-box">
+              <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <span>선생님 관리</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="view-student" class="view hidden">
+        <div style="margin-bottom: -20px; margin-top: -20px;" class="view-header">
+          <h3><i style="font-size: 35px;" class="fa-solid fa-notes-medical"></i> 방문 기록지 작성</h3>
+        </div>
+        
+        <div class="scroll-content">
+          <div class="input-group">
+            <input type="text" id="stId" placeholder="학번 (예: 10101)" />
+            <input type="text" id="stName" placeholder="이름" />
+          </div>
+
+          <div class="section-group">
+            <p class="label">오늘 식사 하셨나요?</p>
+            <div class="segment-control">
+              <label><input type="radio" name="food" value="true" /><span>예</span></label>
+              <label><input type="radio" name="food" value="false" /><span>아니오</span></label>
+            </div>
+          </div>
+
+          <div class="section-group">
+            <p class="label">약물 알러지가 있나요?</p>
+            <div class="segment-control">
+              <label><input type="radio" name="allergy" value="true" /><span>있음</span></label>
+              <label><input type="radio" name="allergy" value="false" /><span>없음</span></label>
+            </div>
+          </div>
+
+          <div class="section-group">
+            <p class="label">증상</p>
+            <div class="select-wrapper">
+              <select id="stCat">
+                <option value="호흡기">호흡기</option>
+                <option value="소화기">소화기</option>
+                <option value="순환기">순환기</option>
+                <option value="외상">외상</option>
+                <option value="피부">피부</option>
+                <option value="근골격계">근골격계</option>
+                <option value="비뇨생식기계">비뇨생식기계</option>
+                <option value="신경정신계">신경정신계</option>
+                <option value="이비인후과">이비인후과</option>
+                <option value="안과">안과</option>
+                <option value="구강">구강</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
+            <textarea style="margin-top: 10px;" id="stDetail" rows="3" placeholder="구체적인 증상을 적어주세요"></textarea>
+
+            <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 2vh;">
+              <input type="checkbox" id="privacyAgree" style="width: 2vh; height: 2vh; cursor: pointer; margin: 0;">
+              <label for="privacyAgree" style="cursor: pointer; color: #555;">개인정보 수집 및 이용 동의</label>
+              <a href="#" onclick="showPrivacyPolicy()" style="color: #007AFF; font-weight: bold; text-decoration: none;">[내용 보기]</a>
+            </div>
+
+          </div>
+        </div>
+        
+
+        <div style="margin-top: 10px; margin-bottom: -15px;" class="action-buttons">
+          <button id="submit-btn" class="btn-primary" onclick="submitLog()">접수 완료</button>
+          <button class="btn-secondary" onclick="showView('view-login')">취소</button>
+        </div>
+      </div>
+
+      <div id="view-admin" class="view hidden">
+        <div class="view-header row">
+          <h3>진료 대기 현황</h3>
+          <div class="mini-controls">
+            <button onclick="downloadCSV()" class="icon-btn" title="엑셀 다운로드"><i class="fa-solid fa-file-csv" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
+            <button onclick="location.reload()" class="icon-btn" title="로그아웃"><i class="fa-solid fa-right-from-bracket" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="admin-table">
+            <thead>
+              <tr>
+                <th>시간</th>
+                <th>학번</th>
+                <th>식사</th>
+                <th>알러지</th>
+                <th style="width: 80px;">증상</th> 
+                <th style="min-width: 140px;">자세한 증상</th> 
+                <th style="min-width: 140px;">진료/처방 내역</th> <th>처리</th>
+              </tr>
+            </thead>
+            <tbody id="log-body">
+              </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="view-teacher-login" class="view hidden">
+        <div class="view-header">
+          <h2>로그인</h2>
+        </div>
+        <input style="margin-top: 20px;" type="password" id="pw" placeholder="●●●●" maxlength="4" />
+        <button style="margin-top: 40px; background-color: #007AFF; color: white;" onclick="adminLogin()">로그인</button>
+
+        <div style="margin-top: 30px; padding: 15px; font-size: 2vh; color: #ff5555; background: rgba(0,0,0,0.05); border-radius: 10px; text-align: center; border: 1px solid #ff5555; line-height: 1.5;">
+          <i class="fa-solid fa-triangle-exclamation"></i> <strong>보안 경고</strong><br>
+          관리자 페이지는 보건교사 전용입니다.<br>
+          무단 해킹 및 접근 시도 시, <strong>정보통신망법 제48조</strong>에 따라<br>
+          <strong>처벌</strong>받을 수 있습니다.
+        </div>
+        
+        <button style="position: fixed; top: 60px; right: 20px;" onclick="location.reload()" class="icon-btn" title="로그아웃"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+      
+    </div> 
+  </div> 
+  <script src="/script.js"></script>
+  <div id="custom-modal" class="modal-overlay hidden" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+    <div class="modal-content" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 4vh 5vh; border-radius: 2vh; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 300px;">
+      <p id="modal-message" style="font-size: 2vh; font-weight: bold; margin-bottom: 3vh; color: var(--text-dark); white-space: pre-line;"></p>
+      <button onclick="closeModal()" style="background: var(--ios-blue); color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">확인</button>
+    </div>
+  </div>
+</body>
+</html>

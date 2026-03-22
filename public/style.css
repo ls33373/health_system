@@ -1,0 +1,271 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@700&display=swap');
+:root {
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --text-dark: #1c1c1e;
+}
+
+* { box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+
+body {
+  margin: 0; height: 100vh; width: 100vw;
+  display: flex; justify-content: center; align-items: center;
+  overflow: hidden; color: var(--text-dark);
+}
+
+/* 배경 오로라 */
+.background-gradient {
+  position: fixed; inset: 0;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite; z-index: -2;
+}
+.background-gradient::before {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); z-index: -1;
+}
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* [핵심] 모든 크기를 화면 비율로 고정 */
+.glass-container {
+  display: flex;
+  width: 96vw;          
+  height: 94vh;         
+  max-height: 95vh;
+  gap: 2vh;            
+  align-items: stretch; /* 높이 꽉 채우기 */
+  margin: auto;
+  z-index: 1;
+  align-items: stretch;
+}
+
+/* ================= 왼쪽 패널 ================= */
+.left-panel {
+  flex: 0.8; 
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; 
+}
+
+/* 타이틀 위치 및 크기 (vh 단위) */
+.left-footer {
+  position: absolute;
+  top: 6vh;            /* 위에서 6% 지점 */
+  left: 50%; transform: translateX(-50%);
+  width: 100%; text-align: center;
+  color: #fff;
+  text-shadow: 0 0.2vh 0.5vh rgba(0,0,0,0.1);
+  display: flex; flex-direction: column; align-items: center;
+}
+.left-footer p:first-child { font-size: 5vh; margin: 0; } /* 아이콘 포함 타이틀 */
+.left-footer p:last-child { font-size: 2vh; margin-top: 1vh; font-weight: 600; opacity: 0.9; }
+
+/* 대기 인원 위젯 (정사각형 유지) */
+.circle-widget {
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 38vh; height: 38vh; /* 화면 높이의 38% 크기 */
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%; border: 0.2vh solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2vh 4vh rgba(0,0,0,0.1);
+  animation: floatWidget 6s ease-in-out infinite;
+}
+@keyframes floatWidget {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, -55%); } /* 둥둥 뜨는 효과 */
+}
+.widget-content { text-align: center; }
+.widget-title { font-size: 3.5vh; margin-top: -1vh; margin-bottom: 1vh; opacity: 0.7; color: #444; }
+.widget-number { font-size: 13vh; font-weight: 700; margin: -1vh 0; line-height: 1; color: #333; }
+.widget-unit { font-size: 2.5vh; margin: 0; opacity: 0.7; }
+
+/* 날씨 위젯 */
+.weather-pill {
+  position: absolute;
+  bottom: 11vh; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 1vh;
+  background: rgba(255, 255, 255, 0.5); padding: 2.5vh 4vh;
+  border-radius: 5vh; border: 0.1vh solid rgba(255, 255, 255, 0.8);
+  font-weight: 600; color: #444; font-size: 3vh;
+}
+
+/* ================= 오른쪽 패널 ================= */
+.right-panel {
+  flex: 1.7;
+  height: 80vh;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(40px);
+  border-radius: 4vh; /* 모서리 둥글기도 비율로 */
+  border: 0.1vh solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2vh 6vh rgba(0,0,0,0.1);
+  padding: 10svh; 
+  position: relative; overflow: hidden;
+}
+
+/* 화면 전환 공통 */
+.view {
+  position: absolute; inset: 0; 
+  padding: 4vh;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none; transform: scale(0.95);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.view.active { opacity: 1; pointer-events: all; transform: scale(1); z-index: 10; }
+
+.view-header { margin-bottom: 2vh; }
+.view-header h3 { font-size: 4.5vh; margin: 3vh 0 8vh 0; line-height: 1.2; }
+.view-header i { font-size: 4vh; margin-right: 1vh; }
+.view-header.row { display: flex; justify-content: space-between; align-items: center; }
+
+/* 메인 메뉴 버튼 (정사각형 비율 고정) */
+.app-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px; 
+  height: auto;      /* 높이를 내용물에 맞게 */
+  margin-top: 30vh;  /* 상하 중앙 배치를 위해 추가 */
+  margin-bottom: auto;
+}
+.app-icon-btn { 
+  background: none; border: none; cursor: pointer; 
+  display: flex; flex-direction: column; align-items: center; gap: 2vh; 
+}
+.app-icon-btn:active { transform: scale(0.95); }
+
+.icon-box {
+  position:absolute;
+  margin-top: -30vh;
+  width: 22vw; height: 45vw; /* 화면 높이의 25% 크기 */
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 5vh;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem; color: white; /* 아이콘 크기 */
+  box-shadow: 0 1.5vh 3vh rgba(0,0,0,0.15);
+}
+.app-icon-btn.student .icon-box { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+.app-icon-btn.admin .icon-box { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.app-icon-btn span { font-size: 2.5vh; font-weight: 700; color: #333; }
+
+/* 입력 폼 요소 (높이와 글씨 크기 vh 통일) */
+.scroll-content { flex: 1; overflow-y: auto; padding-right: 1vh; }
+.input-group { display: flex; gap: 2vh; margin-bottom: 2vh; }
+
+input, select, textarea {
+  width: 100%; padding: 2vh; 
+  border: 0.2vh solid transparent;
+  background: #f2f2f7; border-radius: 2vh;
+  font-size: 2.2vh; /* 글씨 크기 */
+  outline: none; transition: 0.2s; color: #333;
+}
+textarea { min-height: 15vh; resize: none; }
+input:focus, textarea:focus, select:focus { background: #fff; box-shadow: 0 0 0 0.4vh var(--ios-blue); }
+
+.label { font-weight: 700; margin: 2vh 0 1vh; font-size: 2.2vh; color: #555; }
+
+/* 라디오 버튼 세그먼트 */
+.segment-control { display: flex; background: #e5e5ea; padding: 0.5vh; border-radius: 1.5vh; }
+.segment-control label { flex: 1; position: relative; cursor: pointer; }
+.segment-control input { display: none; }
+.segment-control span { 
+  display: block; text-align: center; padding: 1.5vh; 
+  border-radius: 1.2vh; font-size: 2vh; font-weight: 500; color: #888; 
+}
+.segment-control input:checked + span { background: white; box-shadow: 0 0.2vh 0.5vh rgba(0,0,0,0.1); font-weight: 700; color: #000; }
+
+/* 하단 버튼 */
+.action-buttons { display: flex; gap: 2vh; margin-top: 2vh; }
+button { cursor: pointer; border: none; font-size: 2.2vh; border-radius: 2vh; padding: 2vh; font-weight: 700; }
+.btn-primary { flex: 2; background: var(--ios-blue); color: white; }
+.btn-secondary { flex: 1; background: #e5e5ea; color: #333; }
+
+/* 미니 컨트롤 버튼 */
+.mini-controls { display: flex; gap: 1vh; }
+.icon-btn { 
+  width: 5vh; height: 5vh; padding: 0; display: flex; align-items: center; justify-content: center; 
+  border-radius: 50%; background: #f2f2f7; font-size: 2vh; 
+}
+
+/* 테이블 스타일 */
+.table-container { 
+  flex: 1; overflow: auto; 
+  background: rgba(255,255,255,0.5); border-radius: 2vh; padding: 0 1vh;
+}
+table { width: 100%; border-collapse: collapse; }
+th { 
+  position: sticky; top: 0; background: rgba(255,255,255,0.95); 
+  padding: 1.5vh; font-size: 1.8vh; color: #555; z-index: 5; white-space: nowrap; 
+}
+td { 
+  padding: 1.5vh; border-bottom: 0.1vh solid rgba(0,0,0,0.05); 
+  text-align: center; font-size: 1.8vh; vertical-align: middle;
+}
+.badge { display: inline-block; padding: 0.5vh 1vh; background: rgba(0,122,255,0.1); color: var(--ios-blue); border-radius: 1vh; font-size: 1.6vh; font-weight: 600; }
+
+/* [스탠바이미 세로 모드 대응] */
+@media (max-aspect-ratio: 1/1) {
+  .glass-container { flex-direction: column; width: 100vw; height: 100vh; border-radius: 0; gap: 0; }
+  .left-panel { flex: 0.35; width: 100%; }
+  /* 세로 모드일 때 위젯 크기 등 미세 조정 */
+  .circle-widget { width: 25vh; height: 25vh; top: 50%; } 
+  .widget-number { font-size: 8vh; }
+  .right-panel { flex: 0.65; width: 100%; border-radius: 4vh 4vh 0 0; padding: 3vh; }
+  .icon-box { width: 18vh; height: 18vh; font-size: 8vh; }
+}
+
+.byCC {
+  color: rgb(37, 36, 36);
+  font-family: "Agdasima", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 10px;
+  opacity: 0.8;
+  text-align: center;
+}
+
+/* 커스텀 모달 배경 설정 */
+.modal-overlay {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100vw; 
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  z-index: 9999;
+}
+
+
+
+
+
+
+
+/*점검용코드*/
+
+.maintenance-mode {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85); /* 어둡게 덮기 */
+  backdrop-filter: blur(70px);   /* 배경 흐리게 */
+  z-index: 9999;                 /* 최상단 배치 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+.maintenance-content h1 { font-size: 3rem; margin-bottom: 10px; }
+.maintenance-content p { font-size: 1.5rem; line-height: 1.6; opacity: 0.9; }
+.maintenance-time { margin-top: 20px; font-weight: bold; color: var(--ios-blue); }
