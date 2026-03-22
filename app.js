@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 
 // 서버 실행 시 학생 명단 불러오기
-const studentWorkbook = XLSX.readFile("C:\\Users\\성진규\\Documents\\학교\\2026\\동아리\\엑셀 테스트.xlsx");
+const studentWorkbook = XLSX.readFile("명렬표.xlsx");
 const studentSheet = studentWorkbook.Sheets[studentWorkbook.SheetNames[0]];
 const studentData = XLSX.utils.sheet_to_json(studentSheet);
 
