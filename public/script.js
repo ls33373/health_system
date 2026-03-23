@@ -232,18 +232,14 @@ async function adminLogin() {
         pwInput.value = ''; // 성공 시 입력칸 비우기
         showView('view-admin');
 
-        // 서버에 명렬표가 저장되어 있으면 파일업로드 버튼 안 띄우기
-        fetch("/file-check")
-        .then((res) => res.json())
-        .then((res) => {
-            const fileLoader = document.getElementById("file-upload");
-            if (res.exist) { // 명렬표 파일이 존재하면 -> 버튼 숨김 처리
-                fileLoader.classList.add("hidden")
-            } else { // 존재하지 않으면 -> 버튼 보이기
-                fileLoader.classList.remove("hidden")    
-            }
-        })
-        .catch((error) => console.log(error.message));
+        // localStorage에 명렬표가 저장되어 있으면 파일업로드 버튼 안 띄우기
+        const fileLoader = document.getElementById("file-upload");
+        const studentMap = localStorage.getItem("studentMap");
+        if (studentMap) { // 명렬표가 존재하면 -> 버튼 숨김 처리
+            fileLoader.classList.add("hidden");
+        } else { // 존재하지 않으면 -> 버튼 보이기
+            fileLoader.classList.remove("hidden");
+        }
     } else if (inputPw !== "") {
         // 기존 alert 대신 예쁜 모달창 띄우기
         showModal("비밀번호가 틀렸습니다.\n다시 확인해주세요.");
@@ -262,13 +258,20 @@ async function downloadCSV() {
     } else {
         const { data } = await _supabase.from('health_logs').select('*'); // DB에서 데이터 받아오기
 
+        // localStorage에서 명렬표 불러와서 이름 추가
+        const studentMap = JSON.parse(localStorage.getItem("studentMap") || "{}");
+        const dataWithName = data.map(row => ({
+            ...row,
+            name: studentMap[String(row.student_id)] || null
+        }));
+
         // 서버에 요청 보내기
         fetch("/save", {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(dataWithName)
         })
         .then((res) => {
             if (!res.ok) throw new Error('서버 오류');  // 에러 응답 체크
@@ -294,22 +297,26 @@ function uploadStudents() {
     const file = document.getElementById('studentFile').files[0];
     if (!file) return alert('파일을 선택해주세요.');
 
-    const formData = new FormData();
-    formData.append('file', file);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(sheet);
 
-    // 파일 업로더 숨김 처리
-    const fileLoader = document.getElementById("file-upload");
-    fileLoader.classList.add("hidden")
+        // { 학번: 이름 } 형태로 변환해서 localStorage에 저장
+        const studentMap = {};
+        data.forEach(row => {
+            studentMap[String(row.학번)] = row.이름;
+        });
+        localStorage.setItem('studentMap', JSON.stringify(studentMap));
 
-    fetch('/upload-students', {
-        method: 'POST',
-        body: formData  // FormData 쓸 때는 Content-Type 헤더 넣으면 안 됨
-    })
-        .then(res => res.json())
-        .then(data => {
-            console.log("파일 업로드 완료")
-        })
-        .catch(err => console.error(err));
+        // 파일 업로더 숨김 처리
+        const fileLoader = document.getElementById("file-upload");
+        fileLoader.classList.add("hidden");
+
+        console.log(`명렬표 저장 완료: ${data.length}명`);
+    };
+    reader.readAsBinaryString(file);
 }
 
 // ============================================================
