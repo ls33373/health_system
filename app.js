@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require('fs');
 const { json } = require('body-parser');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
 app.use(express.json());
@@ -12,30 +12,12 @@ app.use(express.json());
 const studentMap = new Map();
 const STUDENT_FILE_PATH = path.join(__dirname, 'uploads', 'students.xlsx');
 
-// 서버 시작 시 기존 명단 불러오기
-if (fs.existsSync(STUDENT_FILE_PATH)) {
-    const workbook = XLSX.readFile(STUDENT_FILE_PATH);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const studentData = XLSX.utils.sheet_to_json(sheet);
-
-    studentData.forEach(row => {
-        studentMap.set(String(row.학번), row.이름);
-    });
-    console.log("학생 데이터 로딩 완료");
-} else {
-    console.log("학생 명단 없음 - 업로드 필요");
-}
-
 // 명단 업로드 엔드포인트
 app.post('/upload-students', upload.single('file'), (req, res) => {
     try {
-        const workbook = XLSX.readFile(req.file.path);
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' }); // readFile 대신 read 사용
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const studentData = XLSX.utils.sheet_to_json(sheet);
-
-        // 고정 경로로 파일 저장 (덮어쓰기)
-        fs.copyFileSync(req.file.path, STUDENT_FILE_PATH);
-        fs.unlinkSync(req.file.path); // 임시 파일 삭제
 
         studentMap.clear();
         studentData.forEach(row => {
