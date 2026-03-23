@@ -3,21 +3,51 @@ const XLSX = require('xlsx');
 const path = require("path");
 const fs = require('fs');
 const { json } = require('body-parser');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 const app = express();
 app.use(express.json());
 
-// 서버 실행 시 학생 명단 불러오기
-const studentWorkbook = XLSX.readFile("명렬표.xlsx");
-const studentSheet = studentWorkbook.Sheets[studentWorkbook.SheetNames[0]];
-const studentData = XLSX.utils.sheet_to_json(studentSheet);
-
 const studentMap = new Map();
-studentData.forEach(row => {
-    studentMap.set(String(row.학번), row.이름);
-});
+const STUDENT_FILE_PATH = path.join(__dirname, 'uploads', 'students.xlsx');
 
-console.log("학생 데이터 로딩 완료");
+// 서버 시작 시 기존 명단 불러오기
+if (fs.existsSync(STUDENT_FILE_PATH)) {
+    const workbook = XLSX.readFile(STUDENT_FILE_PATH);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const studentData = XLSX.utils.sheet_to_json(sheet);
+
+    studentData.forEach(row => {
+        studentMap.set(String(row.학번), row.이름);
+    });
+    console.log("학생 데이터 로딩 완료");
+} else {
+    console.log("학생 명단 없음 - 업로드 필요");
+}
+
+// 명단 업로드 엔드포인트
+app.post('/upload-students', upload.single('file'), (req, res) => {
+    try {
+        const workbook = XLSX.readFile(req.file.path);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const studentData = XLSX.utils.sheet_to_json(sheet);
+
+        // 고정 경로로 파일 저장 (덮어쓰기)
+        fs.copyFileSync(req.file.path, STUDENT_FILE_PATH);
+        fs.unlinkSync(req.file.path); // 임시 파일 삭제
+
+        studentMap.clear();
+        studentData.forEach(row => {
+            studentMap.set(String(row.학번), row.이름);
+        });
+
+        res.json({ success: true, count: studentData.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+});
 
 // 엑셀에 데이터 쓰기
 function saveRecord(newRecord, res) {
@@ -99,6 +129,15 @@ app.post('/save', (req, res) => {
         return res.status(500).json({ message: error.message });  // error 대신 error.message
     }
 });
+
+// GET 요청 -> 명렬표 파일 존재 확인
+app.get("/file-check", (req, res) => {
+    if (fs.existsSync(STUDENT_FILE_PATH)) {
+        return res.status(200).json({ "exist": true })
+    } else {
+        return res.status(200).json({ "exist": false })
+    }
+})
 
 // 정적 파일 서빙
 app.use(express.static(path.join(__dirname, "public")));

@@ -146,6 +146,10 @@
           <div class="mini-controls">
             <button onclick="downloadCSV()" class="icon-btn" title="엑셀 다운로드"><i class="fa-solid fa-file-csv" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
             <button onclick="location.reload()" class="icon-btn" title="로그아웃"><i class="fa-solid fa-right-from-bracket" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
+            <div id="file-upload">
+              <input type="file" id="studentFile" accept=".xlsx" />
+              <button onclick="uploadStudents()">명단 업로드</button>
+            </div>
           </div>
         </div>
 

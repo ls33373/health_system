@@ -231,6 +231,19 @@ async function adminLogin() {
     if (inputPw === data.password) {
         pwInput.value = ''; // 성공 시 입력칸 비우기
         showView('view-admin');
+
+        // 서버에 명렬표가 저장되어 있으면 파일업로드 버튼 안 띄우기
+        fetch("/file-check")
+        .then((res) => res.json())
+        .then((res) => {
+            const fileLoader = document.getElementById("file-upload");
+            if (res.exist) { // 명렬표 파일이 존재하면 -> 버튼 숨김 처리
+                fileLoader.classList.add("hidden")
+            } else { // 존재하지 않으면 -> 버튼 보이기
+                fileLoader.classList.remove("hidden")    
+            }
+        })
+        .catch((error) => console.log(error.message));
     } else if (inputPw !== "") {
         // 기존 alert 대신 예쁜 모달창 띄우기
         showModal("비밀번호가 틀렸습니다.\n다시 확인해주세요.");
@@ -243,29 +256,60 @@ async function adminLogin() {
 // 8. 엑셀 다운로드
 // ============================================================
 async function downloadCSV() {
-    const { data } = await _supabase.from('health_logs').select('*'); // DB에서 데이터 받아오기
+    const fileLoader = document.getElementById("file-upload");
+    if (!fileLoader.classList.contains("hidden")) { // 명렬표 파일이 업로드 되지 않은 경우
+        alert("먼저 명렬표 파일을 업로드 한 후에 시도하세요.");
+    } else {
+        const { data } = await _supabase.from('health_logs').select('*'); // DB에서 데이터 받아오기
 
-    // 서버에 요청 보내기
-    fetch("/save", {
-        method: "POST",
-        headers: {
-            "Content-type": "application/json"
-        },
-        body: JSON.stringify(data)
+        // 서버에 요청 보내기
+        fetch("/save", {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+        .then((res) => {
+            if (!res.ok) throw new Error('서버 오류');  // 에러 응답 체크
+            return res.blob();
+        })
+        .then((blob) => { // 다운로드 URL 생성 후 자동 클릭 처리 -> 파일 다운로드
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'records.xlsx';
+            a.click();
+            URL.revokeObjectURL(url);
+        })
+        .catch((error) => console.error(error.message))
+    }
+}
+
+// ================================================
+// 명렬표 업로드
+// ================================================
+
+function uploadStudents() {
+    const file = document.getElementById('studentFile').files[0];
+    if (!file) return alert('파일을 선택해주세요.');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // 파일 업로더 숨김 처리
+    const fileLoader = document.getElementById("file-upload");
+    fileLoader.classList.add("hidden")
+
+    fetch('/upload-students', {
+        method: 'POST',
+        body: formData  // FormData 쓸 때는 Content-Type 헤더 넣으면 안 됨
     })
-    .then((res) => {
-        if (!res.ok) throw new Error('서버 오류');  // 에러 응답 체크
-        return res.blob();
-    })
-    .then((blob) => { // 다운로드 URL 생성 후 자동 클릭 처리 -> 파일 다운로드
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'records.xlsx';
-        a.click();
-        URL.revokeObjectURL(url);
-    })
-    .catch((error) => console.error(error.message))
+        .then(res => res.json())
+        .then(data => {
+            console.log("파일 업로드 완료")
+        })
+        .catch(err => console.error(err));
 }
 
 // ============================================================

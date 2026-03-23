@@ -97,6 +97,11 @@ body {
   font-weight: 600; color: #444; font-size: 3vh;
 }
 
+/* 파일 업로더 숨기기 */
+.hidden {
+  display: none;
+}
+
 /* ================= 오른쪽 패널 ================= */
 .right-panel {
   flex: 1.7;
