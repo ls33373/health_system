@@ -12,22 +12,6 @@
 </head>
 
 <body>
-
-
-  <div id="maintenance-overlay" class="maintenance-mode">
-  <div class="maintenance-content">
-    <i class="fa-solid fa-gears" style="font-size: 5rem; margin-bottom: 20px;"></i>
-    <h1>시스템 점검 중</h1>
-    <p>현재 서비스 점검으로 인해<br>잠시 사용이 중단되었습니다.</p>
-    <p class="maintenance-time">재개 예정: 점검 종료 후 공지 시까지</p>
-    <button onclick="document.getElementById('maintenance-overlay').style.display='none'" style="background:none; border:none; color:rgba(255,255,255,0.3); cursor:default;">선생님 전용</button>
-  </div>
-  </div>
-
-
-
-
-
   <div class="background-gradient"></div>
   <div class="glass-container">
     
@@ -62,12 +46,12 @@
           <h3>안녕하세요! <br>오늘도 좋은 하루 보내세요!</h3>
         </div>
         <div class="app-grid">
-          <button class="app-icon-btn student" onclick="showView('view-student')">
+          <!-- <button class="app-icon-btn student" onclick="showView('view-student')">
             <div class="icon-box">
               <i class="fa-solid fa-user-pen"></i>
             </div>
             <span>진료 접수</span>
-          </button>
+          </button> -->
 
           <button class="app-icon-btn admin" onclick="showView('view-teacher-login')">
             <div class="icon-box">
