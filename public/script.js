@@ -281,7 +281,15 @@ async function downloadCSV() {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'records.xlsx';
+            
+            const today = new Date().toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace(/\. /g, '-').replace('.', ''); // 2026-03-25 형태로 변환
+
+            a.download = `${today} 보건실 이용 기록.xlsx`;
+            
             a.click();
             URL.revokeObjectURL(url);
         })
