@@ -250,6 +250,33 @@ td {
   z-index: 9999;
 }
 
+/* 현장 접수 버튼 */
+#directId, .directId {
+  width: 100%;
+  padding: 0.5vh;
+  border: 1px solid #ddd;
+  border-radius: 0.5vh;
+  text-align: center;
+  font-size: 1.5vh;
+  outline: none;
+}
+
+#directEat, #directAllergy, #directCat, .directEat, .directAllergy, .directCat {
+  padding: 0.5vh;
+  border: 1px solid #ddd;
+  border-radius: 0.5vh;
+  font-size: 1.5vh;
+  outline: none;
+}
+
+#directDetail, #directTreatment, .directDetail, .directTreatment {
+  width: 100%;
+  padding: 0.5vh;
+  border: 1px solid #ddd;
+  border-radius: 0.5vh;
+  font-size: 1.5vh;
+  outline: none;
+}
 
 
 

@@ -43,7 +43,6 @@ function showView(viewId) {
 // ============================================================
 async function submitLog() {
     const stId = document.getElementById('stId').value;
-    const stName = document.getElementById('stName').value;
     const cat = document.getElementById('stCat').value;
     const detail = document.getElementById('stDetail').value;
 
@@ -58,8 +57,8 @@ async function submitLog() {
     }
 
     // 1. 필수 입력 검사 (alert 대신 showModal 사용)
-    if (!stId || !stName) {
-        showModal("학번과 이름을 모두 입력해주세요!");
+    if (!stId) {
+        showModal("학번을 입력해주세요!");
         return;
     }
     if (!foodChecked) {
@@ -76,7 +75,7 @@ async function submitLog() {
 
     // 2. DB에 전송
     const { error } = await _supabase.from('health_logs').insert([{
-        student_id: stId, name: stName, eat: food, allergy: allergy, 
+        student_id: stId, eat: food, allergy: allergy, 
         symptom_cat: cat, symptom_detail: detail, status: 'waiting',
         is_agreed: true
     }]);
@@ -89,7 +88,6 @@ async function submitLog() {
         
         // 3. 폼 초기화
         document.getElementById('stId').value = '';
-        document.getElementById('stName').value = '';
         document.getElementById('stDetail').value = '';
         if (foodChecked) foodChecked.checked = false;
         if (allergyChecked) allergyChecked.checked = false;
@@ -118,22 +116,22 @@ async function fetchLogs() {
     // [현장 접수용 맨 윗줄]
     const inputRow = `
         <tr style="background: rgba(0, 122, 255, 0.05);">
-            <td style="font-weight:bold; color:var(--ios-blue);">현장 접수</td>
-            <td><input type="text" id="directId" placeholder="학번" style="width: 100%; padding: 0.5vh; border: 1px solid #ddd; border-radius: 0.5vh; text-align: center; font-size: 1.5vh; outline: none;" /></td>
+            <td style="font-weight:bold; color:var(--ios-blue);">현장<br>접수</td>
+            <td><input type="text" id="directId" placeholder="학번" /></td>
             <td>
-                <select id="directEat" style="padding: 0.5vh; border: 1px solid #ddd; border-radius: 0.5vh; font-size: 1.5vh; outline: none;">
+                <select id="directEat">
                     <option value="false">X</option>
                     <option value="true">O</option>
                 </select>
             </td>
             <td>
-                <select id="directAllergy" style="padding: 0.5vh; border: 1px solid #ddd; border-radius: 0.5vh; font-size: 1.5vh; outline: none;">
+                <select id="directAllergy">
                     <option value="false">X</option>
                     <option value="true">O</option>
                 </select>
             </td>
             <td>
-                <select id="directCat" style="padding: 0.5vh; border: 1px solid #ddd; border-radius: 0.5vh; font-size: 1.5vh; outline: none;">
+                <select id="directCat">
                     <option value="호흡기">호흡기</option>
                     <option value="소화기">소화기</option>
                     <option value="순환기">순환기</option>
@@ -145,15 +143,19 @@ async function fetchLogs() {
                     <option value="이비인후과">이비인후과</option>
                     <option value="안과">안과</option>
                     <option value="구강">구강</option>
-                    <option value="기타">기타</option>
                     <option value="기타" selected>기타</option>
                 </select>
             </td>
-            <td><input type="text" id="directDetail" placeholder="자세한 증상" style="width: 100%; padding: 0.5vh; border: 1px solid #ddd; border-radius: 0.5vh; font-size: 1.5vh; outline: none;" /></td>
-            <td><input type="text" id="directTreatment" placeholder="처방 내역 (선택)" style="width: 100%; padding: 0.5vh; border: 1px solid #ddd; border-radius: 0.5vh; font-size: 1.5vh; outline: none;" /></td>
+            <td>
+                <input type="text" id="directDetail" placeholder="자세한 증상" />
+            </td>
+            <td>
+                <input type="text" id="directTreatment" placeholder="처방 내역 (선택)" />
+            </td>
             <td>
                 <button class="btn-primary" style="padding:0.5vh 1.5vh; font-size:1.5vh; border-radius:1vh; border:none; cursor:pointer; white-space:nowrap;" onclick="submitDirectLog()">+ 추가</button>
             </td>
+            <td></td>
         </tr>
     `;
 
@@ -180,6 +182,9 @@ async function fetchLogs() {
                 ${log.status === 'waiting' 
                     ? `<button class="btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="completeLog(${log.id})">진료 완료</button>` 
                     : '<span style="color:#34C759; font-weight:bold;">✅완료</span>'}
+            </td>
+            <td>
+                <button class="btn-primary" style="padding:0.5vh 1.5vh; font-size:1.5vh; border-radius:1vh; border:none; cursor:pointer; white-space:nowrap;" onclick="editContent(this)">수정</button>
             </td>
         </tr>
     `}).join('');
@@ -257,7 +262,7 @@ async function downloadCSV() {
         alert("먼저 명렬표 파일을 업로드 한 후에 시도하세요.");
     } else {
         const { data } = await _supabase.from('health_logs').select('*'); // DB에서 데이터 받아오기
-
+        
         // localStorage에서 명렬표 불러와서 이름 추가
         const studentMap = JSON.parse(localStorage.getItem("studentMap") || "{}");
         const dataWithName = data.map(row => ({
@@ -438,6 +443,8 @@ async function submitDirectLog() {
 // ============================================================
 // 커스텀 알림 모달 제어 함수
 // ============================================================
+
+// 일반 알림 모달
 function showModal(msg) {
     document.getElementById('modal-message').innerText = msg;
     const modal = document.getElementById('custom-modal');
@@ -447,6 +454,42 @@ function showModal(msg) {
 
 function closeModal() {
     const modal = document.getElementById('custom-modal');
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+}
+
+// 내용 수정 모달
+function showEditModal() {
+    const modal = document.getElementById('edit-modal');
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+}
+
+async function closeEditModal() {
+    // 수정된 데이터 저장
+    const studentId = document.getElementById("editId").innerText
+    const editedEat = document.getElementById("editEat").value
+    const editedAllergy = document.getElementById("editAllergy").value
+    const editedCat = document.getElementById("editCat").value
+    const editedDetail = document.getElementById("editDetail").value
+    const editedTreatment = document.getElementById("editTreatment").value
+
+    // 시간 데이터 불러오기
+    const logedTime = localStorage.getItem("time")
+
+    // DB에 반영
+    const newData = {
+        student_id: studentId, eat: editedEat, allergy: editedAllergy,
+        symptom_cat: editedCat, symptom_detail: editedDetail, treatment_record: editedTreatment
+    }
+
+    const { data, error } = await _supabase.from('health_logs')
+        .update(newData)
+        .eq("created_at", logedTime)
+        .eq("student_id", studentId)
+
+    // 모달 창 닫기
+    const modal = document.getElementById('edit-modal');
     modal.style.opacity = '0';
     modal.style.pointerEvents = 'none';
 }
@@ -468,4 +511,62 @@ function showPrivacyPolicy() {
 ※ 본인은 위 내용을 숙지하였으며, 개인정보 및 민감정보 수집·이용에 동의합니다.`;
     
     showModal(policyText);
+}
+
+// 내용 수정 모달
+async function editContent(object) {
+    // 데이터 찾을 학번 불러오기
+    const selectRow = object.parentElement.parentElement.children
+    const studentId = selectRow[1].innerText
+
+    // 모달 창 닫기 버튼에 클릭 시 액션 추가
+    const closeBtn = document.getElementById("edit-close-btn")
+
+    // 학생 데이터 불러오기
+    const { data, error } = await _supabase.from("health_logs").select("*").eq("student_id", studentId)
+    data.forEach(d => {
+        if (error || !d) {
+            console.log(error)
+        }
+        else {
+            // 수정하려는 학생의 기록이 여러개인 경우 선택한 기록만 필터링 (시간, 처방 내역으로 필터링)
+            const timeStr = new Date(d.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            const timeLog = selectRow[0].innerText
+            var treatment = selectRow[6].innerText
+
+            // 처방 내역에서 공백 제거
+            treatment = treatment.replaceAll(" ", "")
+
+            if (timeStr === timeLog && treatment === d.treatment_record.replaceAll(" ", "")) {
+                const cat = selectRow[4].innerText
+                const eat = selectRow[2].innerText
+                const allergy = selectRow[3].innerText
+
+                showEditModal()
+                // 모달에 정보 띄우기
+                const catList = ["호흡기", "소화기", "순환기", "외상", "피부", "근골격계", "비뇨생식기계", "신경정신과", "이비인후과",
+                                "안과", "구강", "기타"]
+                const logedTime = document.getElementById("time")
+                const studentIdInput = document.getElementById("editId")
+                const detailInput = document.getElementById("editDetail")
+                const treatmentInput = document.getElementById("editTreatment")
+
+                const selectedCat = document.getElementById(`cat-${catList.indexOf(cat) + 1}`)
+                const selectedEat = document.getElementById(`eat-${eat === "O" ? "T" : "F"}`)
+                const selectedAllergy = document.getElementById(`allergy-${allergy === "O" ? "T" : "F"}`)
+    
+                // 입력창 내용 반영
+                logedTime.innerText = timeStr
+                studentIdInput.innerText = d.student_id
+                detailInput.value = d.symptom_detail
+                treatmentInput.value = d.treatment_record
+                selectedCat.selected = true
+                selectedEat.selected = true
+                selectedAllergy.selected = true
+
+                // localStorage에 시간 데이터 저장
+                localStorage.setItem("time", d.created_at)
+            }
+        }
+    })
 }

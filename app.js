@@ -64,8 +64,12 @@ app.post('/save', (req, res) => {
                 "처리 상태": statusTxt
             };
             records.push(record);
+
+            //////// 수동 입력 기능 추가 /////////
+
         });
-        saveRecord(records, res);
+        // console.log(records.reverse())
+        saveRecord(records.toReversed(), res); // 최신 기록이 위에 오도록 진료 기록 리스트 반전
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: error.message });
