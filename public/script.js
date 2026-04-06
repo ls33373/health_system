@@ -132,6 +132,7 @@ async function fetchLogs() {
             </td>
             <td>
                 <select id="directCat">
+                    <option value="두통">두통</option>
                     <option value="호흡기">호흡기</option>
                     <option value="소화기">소화기</option>
                     <option value="순환기">순환기</option>
@@ -465,28 +466,30 @@ function showEditModal() {
     modal.style.pointerEvents = 'auto';
 }
 
-async function closeEditModal() {
-    // 수정된 데이터 저장
-    const studentId = document.getElementById("editId").innerText
-    const editedEat = document.getElementById("editEat").value
-    const editedAllergy = document.getElementById("editAllergy").value
-    const editedCat = document.getElementById("editCat").value
-    const editedDetail = document.getElementById("editDetail").value
-    const editedTreatment = document.getElementById("editTreatment").value
-
-    // 시간 데이터 불러오기
-    const logedTime = localStorage.getItem("time")
-
-    // DB에 반영
-    const newData = {
-        student_id: studentId, eat: editedEat, allergy: editedAllergy,
-        symptom_cat: editedCat, symptom_detail: editedDetail, treatment_record: editedTreatment
+async function closeEditModal(type) {
+    if (type === "edit") {
+        // 수정된 데이터 저장
+        const studentId = document.getElementById("editId").innerText
+        const editedEat = document.getElementById("editEat").value
+        const editedAllergy = document.getElementById("editAllergy").value
+        const editedCat = document.getElementById("editCat").value
+        const editedDetail = document.getElementById("editDetail").value
+        const editedTreatment = document.getElementById("editTreatment").value
+    
+        // 시간 데이터 불러오기
+        const logedTime = localStorage.getItem("time")
+    
+        // DB에 반영
+        const newData = {
+            student_id: studentId, eat: editedEat, allergy: editedAllergy,
+            symptom_cat: editedCat, symptom_detail: editedDetail, treatment_record: editedTreatment
+        }
+    
+        const { data, error } = await _supabase.from('health_logs')
+            .update(newData)
+            .eq("created_at", logedTime)
+            .eq("student_id", studentId)
     }
-
-    const { data, error } = await _supabase.from('health_logs')
-        .update(newData)
-        .eq("created_at", logedTime)
-        .eq("student_id", studentId)
 
     // 모달 창 닫기
     const modal = document.getElementById('edit-modal');
@@ -544,8 +547,8 @@ async function editContent(object) {
 
                 showEditModal()
                 // 모달에 정보 띄우기
-                const catList = ["호흡기", "소화기", "순환기", "외상", "피부", "근골격계", "비뇨생식기계", "신경정신과", "이비인후과",
-                                "안과", "구강", "기타"]
+                const catList = ["두통", "호흡기", "소화기", "순환기", "외상", "피부", "근골격계", "비뇨생식기계", "신경정신과",
+                                "이비인후과", "안과", "구강", "기타"]
                 const logedTime = document.getElementById("time")
                 const studentIdInput = document.getElementById("editId")
                 const detailInput = document.getElementById("editDetail")

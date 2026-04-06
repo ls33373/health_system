@@ -92,6 +92,7 @@
             <p class="label">증상</p>
             <div class="select-wrapper">
               <select id="stCat">
+                <option value="두통">두통</option>
                 <option value="호흡기">호흡기</option>
                 <option value="소화기">소화기</option>
                 <option value="순환기">순환기</option>
@@ -192,7 +193,7 @@
   <!-- 수정 모달 -->
   <div id="edit-modal" class="modal-overlay" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
     <div class="edit-modal-content" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 4vh 5vh; border-radius: 2vh; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 300px;">
-      <!-- <p id="modal-message" style="font-size: 2vh; font-weight: bold; margin-bottom: 3vh; color: var(--text-dark); white-space: pre-line;"></p> -->
+      <p id="modal-message" style="font-size: 3vh; font-weight: bold; margin-bottom: 1vh; color: var(--text-dark);">처방 내용 수정</p>
       <table>
         <tr>
           <td>시간</td>
@@ -220,18 +221,19 @@
           </td>
           <td>
             <select id="editCat" class="directCat">
-              <option value="호흡기" id="cat-1">호흡기</option>
-              <option value="소화기" id="cat-2">소화기</option>
-              <option value="순환기" id="cat-3">순환기</option>
-              <option value="외상" id="cat-4">외상</option>
-              <option value="피부" id="cat-5">피부</option>
-              <option value="근골격계" id="cat-6">근골격계</option>
-              <option value="비뇨생식기계" id="cat-7">비뇨생식기계</option>
-              <option value="신경정신계" id="cat-8">신경정신계</option>
-              <option value="이비인후과" id="cat-9">이비인후과</option>
-              <option value="안과" id="cat-10">안과</option>
-              <option value="구강" id="cat-11">구강</option>
-              <option value="기타" id="cat-12">기타</option>
+              <option value="두통" id="cat-1">두통</option>
+              <option value="호흡기" id="cat-2">호흡기</option>
+              <option value="소화기" id="cat-3">소화기</option>
+              <option value="순환기" id="cat-4">순환기</option>
+              <option value="외상" id="cat-5">외상</option>
+              <option value="피부" id="cat-6">피부</option>
+              <option value="근골격계" id="cat-7">근골격계</option>
+              <option value="비뇨생식기계" id="cat-8">비뇨생식기계</option>
+              <option value="신경정신계" id="cat-9">신경정신계</option>
+              <option value="이비인후과" id="cat-10">이비인후과</option>
+              <option value="안과" id="cat-11">안과</option>
+              <option value="구강" id="cat-12">구강</option>
+              <option value="기타" id="cat-13">기타</option>
             </select>
           </td>
           <td>
@@ -242,7 +244,8 @@
           </td>
         </tr>
       </table>
-      <button onclick="closeEditModal()" style="background: var(--ios-blue); color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">확인</button>
+      <button onclick="closeEditModal('edit')" style="background: var(--ios-blue); color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">확인</button>
+      <button onclick="closeEditModal('cancel')" style="background: gray; color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">취소</button>
     </div>
   </div>
 
