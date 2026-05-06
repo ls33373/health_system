@@ -38,6 +38,14 @@ function showView(viewId) {
     }
 }
 
+// ===========================
+// 모달 숨기기, 보이기 함수
+// ===========================
+function modalControl(modal, mode) {
+    modal.style.opacity = mode === "show" ? "1" : "0";
+    modal.style.pointerEvents = mode === "show" ? "auto" : "none";
+}
+
 // ============================================================
 // 학생 접수 함수 (알림을 모달로 변경)
 // ============================================================
@@ -257,12 +265,16 @@ async function adminLogin() {
 // ============================================================
 // 8. 엑셀 다운로드
 // ============================================================
-async function downloadCSV() {
+async function downloadCSV(filename, startDate, endDate) {
     const fileLoader = document.getElementById("file-upload");
     if (!fileLoader.classList.contains("hidden")) { // 명렬표 파일이 업로드 되지 않은 경우
         alert("먼저 명렬표 파일을 업로드 한 후에 시도하세요.");
     } else {
-        const { data } = await _supabase.from('health_logs').select('*'); // DB에서 데이터 받아오기
+        const { data } = await _supabase.from('health_logs') // DB에서 데이터 받아오기
+            .select('*')
+            .gte("created_at", startDate)
+            .lte("created_at", endDate)
+            .order("created_at", { ascending: true });
         
         // localStorage에서 명렬표 불러와서 이름 추가
         const studentMap = JSON.parse(localStorage.getItem("studentMap") || "{}");
@@ -294,7 +306,7 @@ async function downloadCSV() {
                 day: '2-digit'
             }).replace(/\. /g, '-').replace('.', ''); // 2026-03-25 형태로 변환
 
-            a.download = `${today} 보건실 이용 기록.xlsx`;
+            a.download = `${filename}.xlsx`;
             
             a.click();
             URL.revokeObjectURL(url);
@@ -302,6 +314,109 @@ async function downloadCSV() {
         .catch((error) => console.error(error.message))
     }
 }
+
+// 날짜 포멧팅 함수
+function dateFormatting(date, type) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작
+    const dd = String(date.getDate()).padStart(2, '0');
+
+    if (type === "yyyy-mm-dd") { // 연-월-일    
+        return `${yyyy}-${mm}-${dd}`;
+    } else if (type === "yyyy년 mm월 dd일") {
+        return `${yyyy}년 ${mm}월 ${dd}일`;
+    } else if (type === "ISO-M") { // ISO 형식(최대 수치)
+        return `${yyyy}-${mm}-${dd}T23:59:59Z`;
+    } else if (type === "ISO-m") { // ISO 형식(최소 수치)
+        return `${yyyy}-${mm}-${dd}T00:00:00Z`;
+    }
+}
+
+// 기간 선택 모달
+function downloadModal() {
+    const downloadModal = document.getElementById("download-modal");
+    modalControl(downloadModal, "show");
+}
+
+// 다운로드
+function startDownload() {
+    const radios = document.getElementsByName("period");
+    var checkedBtn;
+
+    radios.forEach(btn => {
+        if (btn.checked) { checkedBtn = btn }
+    });
+
+    // 데이터 시작 날짜 계산
+    const today = new Date();
+    const startDate = new Date(today.setDate(today.getDate() - Number(checkedBtn.value)));
+    
+    // 엑셀 파일 다운로드
+    downloadCSV(`보건실 이용 기록(${dateFormatting(startDate, "yyyy년 mm월 dd일")}~${dateFormatting(new Date(), "yyyy년 mm월 dd일")})`,
+                dateFormatting(startDate, "ISO-m"), dateFormatting(new Date(), "ISO-M"));
+
+    // console.log(dateFormatting(startDate, "ISO-m"), dateFormatting(new Date(), "ISO-M"))
+}
+
+// ========================
+// 수동 입력 기능
+// ========================
+// function loadValue() {
+//     const idInput = document.getElementById("manual-student-id");
+//     const dateInput = document.getElementById("manual-date");
+//     const eatInput = document.getElementById("manualEat");
+//     const allergyInput = document.getElementById("manualAllergy");
+//     const catInput = document.getElementById("manualCat");
+//     const detailInput = document.getElementById("manualDetail");
+//     const treatmentInput = document.getElementById("manualTreatment");
+
+//     return dateInput.value, idInput.value, eatInput.value, allergyInput.value,
+//             catInput.value, detailInput.value, treatmentInput.value;
+// }
+
+// function manualInput() {
+//     // 모달 보이기
+//     const modal = document.getElementById('manual-input-modal');
+//     modal.style.opacity = '1';
+//     modal.style.pointerEvents = 'auto';
+
+//     // 입력창 초기화
+//     const { date, id, eat, allergy, cat, detail, treatment } = loadValue();
+//     [date, id, eat, allergy, cat, detail, treatment].forEach(e => {
+//         e.value = "";
+//     });
+// }
+
+// async function saveData() {
+//     const { date, id, eat, allergy, cat, detail, treatment } = loadValue();
+
+//     // 데이터 검사
+//     // const objectList = [date, id, eat, allergy, cat, detail, treatment];
+//     // const textList = ["날짜", "학번", "식사 여부", "알러지 여부", "증상", "자세한 증상", "진료/처방 내역"]
+//     // for (let i = 0; i > 7; i++) {
+//     //     if (!objectList[i]) { alert(`${textList[i]}을/를 입력해주세요.`); break }
+//     // }
+
+//     // // DB에 저장
+//     // const { error } = await _supabase.from('health_logs').insert([{
+//     //     created_at: date,
+//     //     student_id: id, 
+//     //     name: null, 
+//     //     eat: eat, 
+//     //     allergy: allergy, 
+//     //     symptom_cat: cat, 
+//     //     symptom_detail: detail, 
+//     //     treatment_record: treatment, // 추가됨
+//     //     status: 'done' // 현장 접수 후 완료 처리를 위해 일단 대기로 둠 (원하면 'done'으로 변경 가능)
+//     // }]);
+
+//     // if (error) {
+//     //     alert("오류 발생: " + error.message);
+//     // } else {
+//     //     await fetchLogs();
+//     //     await init();
+//     // }
+// }
 
 // ================================================
 // 명렬표 업로드
@@ -449,24 +564,20 @@ async function submitDirectLog() {
 function showModal(msg) {
     document.getElementById('modal-message').innerText = msg;
     const modal = document.getElementById('custom-modal');
-    modal.style.opacity = '1';
-    modal.style.pointerEvents = 'auto';
+    modalControl(modal, "show");
 }
 
 function closeModal() {
     const modal = document.getElementById('custom-modal');
-    modal.style.opacity = '0';
-    modal.style.pointerEvents = 'none';
+    modalControl(modal, "hide");
 }
 
 // 내용 수정 모달
-function showEditModal() {
-    const modal = document.getElementById('edit-modal');
-    modal.style.opacity = '1';
-    modal.style.pointerEvents = 'auto';
+function showCustomModal(modal) {
+    modalControl(modal, "show");
 }
 
-async function closeEditModal(type) {
+async function closeEditModal(type, object) {
     if (type === "edit") {
         // 수정된 데이터 저장
         const studentId = document.getElementById("editId").innerText
@@ -489,12 +600,13 @@ async function closeEditModal(type) {
             .update(newData)
             .eq("created_at", logedTime)
             .eq("student_id", studentId)
+    } else if (type === "new") {
+
     }
 
     // 모달 창 닫기
-    const modal = document.getElementById('edit-modal');
-    modal.style.opacity = '0';
-    modal.style.pointerEvents = 'none';
+    const modal = document.getElementById(object.parentElement.parentElement.id)
+    modalControl(modal, "hide");
 }
 
 // ============================================================
@@ -545,7 +657,7 @@ async function editContent(object) {
                 const eat = selectRow[2].innerText
                 const allergy = selectRow[3].innerText
 
-                showEditModal()
+                showCustomModal(document.getElementById("edit-modal"))
                 // 모달에 정보 띄우기
                 const catList = ["두통", "호흡기", "소화기", "순환기", "외상", "피부", "근골격계", "비뇨생식기계", "신경정신과",
                                 "이비인후과", "안과", "구강", "기타"]
@@ -571,5 +683,98 @@ async function editContent(object) {
                 localStorage.setItem("time", d.created_at)
             }
         }
+    })
+}
+
+// =======================
+// 개인별 진료기록 확인
+// =======================
+function loadRecord() { // 모달 띄우기
+    const recordViewModal = document.getElementById("record-view-modal");
+
+    // 모달 보이기
+    modalControl(recordViewModal, "show");
+
+    // 입력칸으로 포커스 전환
+    const idInput = document.getElementById("id-input");
+    idInput.focus();
+
+    /////// 개인별 조회 스크롤 바 추가 //////////
+}
+
+function closeViewModal() {
+    const recordViewModal = document.getElementById("record-view-modal");
+
+    // 내용 초기화
+    const idInput = document.getElementById("id-input");
+    const viewTable = document.getElementById("view-table");
+    const closeBtn = document.getElementById("close-btn");
+    const viewContent = document.getElementById("record-view-content");
+
+    idInput.value = ""; 
+
+    const rows = viewTable.querySelectorAll("tr"); 
+    
+    // i=0은 제목 줄(시간, 식사, 알러지 등)이므로 남겨두고, i=1부터 끝까지 삭제합니다.
+    for (let i = 1; i < rows.length; i++) {
+        rows[i].remove();
+    }
+
+    // 모달 숨기기
+    modalControl(recordViewModal, "hide");
+}
+
+async function searchLog() { // 학번에 대한 진료기록 조회
+    // 입력값 받아오기
+    const inputId = document.getElementById("id-input").value;
+
+    // 데이터 불러오기
+    const { data, error } = await _supabase.from('health_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .eq("student_id", inputId)
+    
+    if (error) { alert("학생의 진료기록을 불러오는 중 오류가 발생했습니다.") }
+    if (data.length === 0) { alert("해당하는 학생의 진료기록이 없습니다.") }
+
+    // 테이블에 띄우기
+    console.log(data)
+    const viewTable = document.getElementById("view-table");
+    
+    // 각 데이터별로 처리
+    data.forEach(d => {
+        // 각 항목별 테이블 줄 생성
+        const tr = document.createElement("tr");
+        viewTable.appendChild(tr);
+        
+        // 날짜 추가
+        const timeTd = document.createElement("td");
+        timeTd.innerText = new Date(d.created_at).toLocaleTimeString([], {month:'2-digit', day:'2-digit'});
+        tr.appendChild(timeTd);
+
+        // 식사 여부 추가
+        const foodTd = document.createElement("td");
+        foodTd.innerText = d.eat ? "O" : "X";
+        tr.appendChild(foodTd);
+
+        // 알러지 여부 추가
+        const allergyTd = document.createElement("td");
+        allergyTd.innerText = d.allergy ? "O" : "X";
+        tr.appendChild(allergyTd);
+
+        // 증상 추가
+        const catTd = document.createElement("td");
+        catTd.innerText = d.symptom_cat;
+        tr.appendChild(catTd);
+
+        // 자세한 증상 추가
+        const detailTd = document.createElement("td");
+        detailTd.innerText = d.symptom_detail;
+        tr.appendChild(detailTd);
+
+        // 진료/처방 내역 추가
+        const treatmentTd = document.createElement("td");
+        treatmentTd.innerText = d.treatment_record;
+        tr.appendChild(treatmentTd);
     })
 }

@@ -127,9 +127,13 @@
 
       <div id="view-admin" class="view hidden">
         <div class="view-header row">
-          <h3>진료 대기 현황</h3>
+          <div>
+            <h3>진료 대기 현황</h3>
+            <!-- <button type="button" onclick="manualInput()">수동 입력</button> -->
+            <button type="button" onclick="loadRecord()">개인별 진료기록 확인</button>
+          </div>
           <div class="mini-controls">
-            <button onclick="downloadCSV()" class="icon-btn" title="엑셀 다운로드"><i class="fa-solid fa-file-csv" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
+            <button onclick="downloadModal()" class="icon-btn" title="엑셀 다운로드"><i class="fa-solid fa-file-csv" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
             <button onclick="location.reload()" class="icon-btn" title="로그아웃"><i class="fa-solid fa-right-from-bracket" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
             <div id="file-upload">
               <input type="file" id="studentFile" accept=".xlsx" />
@@ -185,7 +189,7 @@
   <div id="custom-modal" class="modal-overlay hidden" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
     <div class="modal-content" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 4vh 5vh; border-radius: 2vh; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 300px;">
       <p id="modal-message" style="font-size: 2vh; font-weight: bold; margin-bottom: 3vh; color: var(--text-dark); white-space: pre-line;"></p>
-      <button onclick="closeModal()" style="background: var(--ios-blue); color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">확인</button>
+      <button onclick="closeModal()" class="blue-btn">확인</button>
     </div>
   </div>
 
@@ -244,8 +248,107 @@
           </td>
         </tr>
       </table>
-      <button onclick="closeEditModal('edit')" style="background: var(--ios-blue); color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">확인</button>
-      <button onclick="closeEditModal('cancel')" style="background: gray; color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">취소</button>
+      <button onclick="closeEditModal('edit', this)" class="blue-btn">확인</button>
+      <button onclick="closeEditModal('cancel', this)" style="background: gray; color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">취소</button>
+    </div>
+  </div>
+
+  <!-- 수동 입력 모달 -->
+  <div id="manual-input-modal" class="modal-overlay" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+    <div class="manual-input-modal-content" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 4vh 5vh; border-radius: 2vh; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 300px;">
+      <p id="modal-message" style="font-size: 3vh; font-weight: bold; margin-bottom: 1vh; color: var(--text-dark);">수동 입력</p>
+      <table>
+        <tr>
+          <td>시간</td>
+          <td>학번</td>
+          <td>식사</td>
+          <td>알러지</td>
+          <td>증상</td>
+          <td>자세한 증상</td>
+          <td>진료/처방 내역</td>
+        </tr>
+        <tr>
+          <td><input type="date" id="manual-date"></td>
+          <td><input type="text" id="manual-student-id"></td>
+          <td>
+            <select id="manualEat" class="directEat">
+              <option value="false" id="eat-F">X</option>
+              <option value="true" id="eat-T">O</option>
+            </select>
+          </td>
+          <td>
+            <select id="manualAllergy" class="directAllergy">
+              <option value="false" id="allergy-F">X</option>
+              <option value="true" id="allergy-T">O</option>
+            </select>
+          </td>
+          <td>
+            <select id="manualCat" class="directCat">
+              <option value="두통" id="cat-1">두통</option>
+              <option value="호흡기" id="cat-2">호흡기</option>
+              <option value="소화기" id="cat-3">소화기</option>
+              <option value="순환기" id="cat-4">순환기</option>
+              <option value="외상" id="cat-5">외상</option>
+              <option value="피부" id="cat-6">피부</option>
+              <option value="근골격계" id="cat-7">근골격계</option>
+              <option value="비뇨생식기계" id="cat-8">비뇨생식기계</option>
+              <option value="신경정신계" id="cat-9">신경정신계</option>
+              <option value="이비인후과" id="cat-10">이비인후과</option>
+              <option value="안과" id="cat-11">안과</option>
+              <option value="구강" id="cat-12">구강</option>
+              <option value="기타" id="cat-13">기타</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" id="manualDetail" class="directDetail" />
+          </td>
+          <td>
+            <input type="text" id="manualTreatment" class="directTreatment" />
+          </td>
+        </tr>
+      </table>
+      <button onclick="saveData()" class="blue-btn">확인</button>
+      <button onclick="closeEditModal('cancel', this)" style="background: gray; color: white; border: none; padding: 1vh 3vh; border-radius: 1.5vh; font-size: 1.8vh; font-weight: bold; cursor: pointer;">취소</button>
+    </div>
+  </div>
+
+  <!-- 개인별 진료기록 확인 모달 -->
+  <div id="record-view-modal" class="modal-overlay" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+    <div id="record-view-content" class="record-view-modal-content" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 4vh 5vh; border-radius: 2vh; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 300px;">
+      <p id="modal-message" style="font-size: 3vh; font-weight: bold; margin-bottom: 1vh; color: var(--text-dark);">개인별 진료기록 확인</p>
+      
+      <div id="input-line">
+        <label id="id-input-label" for="id-input">학번 :</label>
+        <input type="text" id="id-input" />
+        <button type="button" class="blue-btn" style="margin-left: 2vh;" onclick="searchLog()">조회</button>
+      </div>
+
+      <table id="view-table">
+        <tr>
+          <td>시간</td>
+          <td>식사</td>
+          <td>알러지</td>
+          <td>증상</td>
+          <td>자세한 증상</td>
+          <td>진료/처방 내역</td>
+        </tr>
+      </table>
+
+      <button id="close-btn" onclick="closeViewModal()">돌아가기</button>
+    </div>
+  </div>
+
+  <div id="download-modal" class="modal-overlay" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+    <div id="download-content" class="record-view-modal-content" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 4vh 5vh; border-radius: 2vh; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 300px;">
+      <p id="modal-message" style="font-size: 3vh; font-weight: bold; margin-bottom: 1vh; color: var(--text-dark);">엑셀 다운로드</p>
+
+      <div id="select-period">
+        <label><input type="radio" name="period" value="7" />지난 7일</label>
+        <label><input type="radio" name="period" value="30" />지난 30일</label>
+      </div>
+
+      <button type="button" id="download-btn" onclick="startDownload()">다운로드</button>
+      <button id="close-btn" onclick="closeEditModal('cancel', this)">돌아가기</button>
     </div>
   </div>
 

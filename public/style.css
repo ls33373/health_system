@@ -126,7 +126,7 @@ body {
 .view.active { opacity: 1; pointer-events: all; transform: scale(1); z-index: 10; }
 
 .view-header { margin-bottom: 2vh; }
-.view-header h3 { font-size: 4.5vh; margin: 3vh 0 8vh 0; line-height: 1.2; }
+.view-header h3 { font-size: 4.5vh; margin: 3vh 0 3vh 0; line-height: 1.2; }
 .view-header i { font-size: 4vh; margin-right: 1vh; }
 .view-header.row { display: flex; justify-content: space-between; align-items: center; }
 
@@ -269,7 +269,7 @@ td {
   outline: none;
 }
 
-#directDetail, #directTreatment, .directDetail, .directTreatment {
+#directDetail, #directTreatment, .directDetail, .directTreatment, #manual-student-id, #manual-date {
   width: 100%;
   padding: 0.5vh;
   border: 1px solid #ddd;
@@ -279,7 +279,52 @@ td {
 }
 
 
+/* 개인별 진료기록 확인 */
+#input-line { /* 학번 입력 구역 */
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+}
 
+#id-input-label { /* 입력칸 텍스트 */
+  width: 8vh;
+}
+
+#id-input { /* 입력칸 */
+  width: 15vh;
+  height: 3vh;
+  border: 2px solid #000000;
+}
+
+.blue-btn, #download-btn {
+  background: var(--ios-blue);
+  color: white;
+  border: none;
+  padding: 1vh 3vh;
+  border-radius: 1.5vh;
+  font-size: 1.8vh;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#close-btn {
+  background: gray;
+  color: white;
+  border: none;
+  padding: 1vh 3vh;
+  border-radius: 1.5vh;
+  font-size: 1.8vh;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* 엑셀 파일 다운로드 */
+#select-period {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0px; /* 상하 좌우 */
+}
 
 
 

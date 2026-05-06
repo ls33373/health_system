@@ -24,14 +24,14 @@ function saveRecord(newRecord, res) {
 
     // 파일 생성 후 다운로드
     const buffer = XLSX.write(newWorkbook, { type: 'buffer', bookType: 'xlsx' });
-
-    res.setHeader('Content-Disposition', 'attachment; filename=records.xlsx');
+    
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.send(buffer);
 }
 
 // POST 요청 -> 엑셀에 데이터 저장
 app.post('/save', (req, res) => {
+    // console.log(req.body);
     try {
         let records = [];
         req.body.forEach(data => {
@@ -64,9 +64,6 @@ app.post('/save', (req, res) => {
                 "처리 상태": statusTxt
             };
             records.push(record);
-
-            //////// 수동 입력 기능 추가 /////////
-
         });
         // console.log(records.reverse())
         saveRecord(records.toReversed(), res); // 최신 기록이 위에 오도록 진료 기록 리스트 반전
