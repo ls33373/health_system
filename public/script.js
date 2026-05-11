@@ -126,41 +126,11 @@ async function fetchLogs() {
         <tr style="background: rgba(0, 122, 255, 0.05);">
             <td style="font-weight:bold; color:var(--ios-blue);">현장<br>접수</td>
             <td><input type="text" id="directId" placeholder="학번" /></td>
-            <td>
-                <select id="directEat">
-                    <option value="false">X</option>
-                    <option value="true">O</option>
-                </select>
-            </td>
-            <td>
-                <select id="directAllergy">
-                    <option value="false">X</option>
-                    <option value="true">O</option>
-                </select>
-            </td>
-            <td>
-                <select id="directCat">
-                    <option value="두통">두통</option>
-                    <option value="호흡기">호흡기</option>
-                    <option value="소화기">소화기</option>
-                    <option value="순환기">순환기</option>
-                    <option value="외상">외상</option>
-                    <option value="피부">피부</option>
-                    <option value="근골격계">근골격계</option>
-                    <option value="비뇨생식기계">비뇨생식기계</option>
-                    <option value="신경정신계">신경정신계</option>
-                    <option value="이비인후과">이비인후과</option>
-                    <option value="안과">안과</option>
-                    <option value="구강">구강</option>
-                    <option value="기타" selected>기타</option>
-                </select>
-            </td>
-            <td>
-                <input type="text" id="directDetail" placeholder="자세한 증상" />
-            </td>
-            <td>
-                <input type="text" id="directTreatment" placeholder="처방 내역 (선택)" />
-            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
             <td>
                 <button class="btn-primary" style="padding:0.5vh 1.5vh; font-size:1.5vh; border-radius:1vh; border:none; cursor:pointer; white-space:nowrap;" onclick="submitDirectLog()">+ 추가</button>
             </td>
@@ -317,9 +287,9 @@ async function downloadCSV(filename, startDate, endDate) {
 
 // 날짜 포멧팅 함수
 function dateFormatting(date, type) {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작
-    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.slice(0, 4);
+    const mm = date.slice(5, 7).padStart(2, "0");
+    const dd = date.slice(8, 10).padStart(2, "0");
 
     if (type === "yyyy-mm-dd") { // 연-월-일    
         return `${yyyy}-${mm}-${dd}`;
@@ -340,20 +310,27 @@ function downloadModal() {
 
 // 다운로드
 function startDownload() {
-    const radios = document.getElementsByName("period");
-    var checkedBtn;
+    const startDate = document.getElementById("select-start-date").value;
+    const endDate = document.getElementById("select-end-date").value;
 
-    radios.forEach(btn => {
-        if (btn.checked) { checkedBtn = btn }
-    });
+    // console.log(dateFormatting(startDate, "yyyy년 mm월 dd일"), dateFormatting(endDate, "yyyy년 mm월 dd일"),
+    //             dateFormatting(startDate, "ISO-m"), dateFormatting(endDate, "ISO-M"))
 
-    // 데이터 시작 날짜 계산
-    const today = new Date();
-    const startDate = new Date(today.setDate(today.getDate() - Number(checkedBtn.value)));
+
+    // const radios = document.getElementsByName("period");
+    // var checkedBtn;
+
+    // radios.forEach(btn => {
+    //     if (btn.checked) { checkedBtn = btn }
+    // });
+
+    // // 데이터 시작 날짜 계산
+    // const today = new Date();
+    // const startDate = new Date(today.setDate(today.getDate() - Number(checkedBtn.value)));
     
     // 엑셀 파일 다운로드
-    downloadCSV(`보건실 이용 기록(${dateFormatting(startDate, "yyyy년 mm월 dd일")}~${dateFormatting(new Date(), "yyyy년 mm월 dd일")})`,
-                dateFormatting(startDate, "ISO-m"), dateFormatting(new Date(), "ISO-M"));
+    downloadCSV(`보건실 이용 기록(${dateFormatting(startDate, "yyyy년 mm월 dd일")}~${dateFormatting(endDate, "yyyy년 mm월 dd일")})`,
+                dateFormatting(startDate, "ISO-m"), dateFormatting(endDate, "ISO-M"));
 
     // console.log(dateFormatting(startDate, "ISO-m"), dateFormatting(new Date(), "ISO-M"))
 }
@@ -527,33 +504,16 @@ window.addEventListener('DOMContentLoaded', () => {
 // 선생님 표에서 직접 현장 접수하기
 // ============================================================
 async function submitDirectLog() {
-    const stId = document.getElementById('directId').value;
-    const eat = document.getElementById('directEat').value === 'true';
-    const allergy = document.getElementById('directAllergy').value === 'true';
-    const cat = document.getElementById('directCat').value;
-    const detail = document.getElementById('directDetail').value;
-    const treatment = document.getElementById('directTreatment').value; // 추가됨
+    const stId = document.getElementById('directId');
 
-    if (!stId) return alert("학번을 입력해주세요.");
+    if (!stId.value) { return alert("학번을 입력해주세요."); }
+    else { localStorage.setItem("student_id", stId.value); } // 학번 저장
 
-    // DB에 데이터 저장 (treatment_record 추가)
-    const { error } = await _supabase.from('health_logs').insert([{
-        student_id: stId, 
-        name: null, 
-        eat: eat, 
-        allergy: allergy, 
-        symptom_cat: cat, 
-        symptom_detail: detail, 
-        treatment_record: treatment, // 추가됨
-        status: 'waiting' // 현장 접수 후 완료 처리를 위해 일단 대기로 둠 (원하면 'done'으로 변경 가능)
-    }]);
+    // 개인별 진료 기록 모달에서 나머지 내용 입력받기
+    loadRecord() // 모달창 띄우기
 
-    if (error) {
-        alert("오류 발생: " + error.message);
-    } else {
-        await fetchLogs();
-        await init();
-    }
+    // 학번 입력값 삭제
+    stId.value = "";
 }
 
 // ============================================================
@@ -695,9 +655,13 @@ function loadRecord() { // 모달 띄우기
     // 모달 보이기
     modalControl(recordViewModal, "show");
 
-    // 입력칸으로 포커스 전환
-    const idInput = document.getElementById("id-input");
-    idInput.focus();
+    // 입력한 학번에 해당하는 학생의 진료기록 불러오기
+    const studentId = localStorage.getItem("student_id");
+    searchLog(studentId);
+
+    // 서브 타이틀 설정
+    const subTitle = document.getElementById("modal-subtitle");
+    subTitle.innerText = `학번 : ${studentId}`
 
     /////// 개인별 조회 스크롤 바 추가 //////////
 }
@@ -706,17 +670,14 @@ function closeViewModal() {
     const recordViewModal = document.getElementById("record-view-modal");
 
     // 내용 초기화
-    const idInput = document.getElementById("id-input");
     const viewTable = document.getElementById("view-table");
     const closeBtn = document.getElementById("close-btn");
     const viewContent = document.getElementById("record-view-content");
 
-    idInput.value = ""; 
-
     const rows = viewTable.querySelectorAll("tr"); 
     
-    // i=0은 제목 줄(시간, 식사, 알러지 등)이므로 남겨두고, i=1부터 끝까지 삭제합니다.
-    for (let i = 1; i < rows.length; i++) {
+    // 조회 내용만 삭제 -> 제목, 입력칸 삭제 X
+    for (let i = 2; i < rows.length; i++) {
         rows[i].remove();
     }
 
@@ -724,21 +685,16 @@ function closeViewModal() {
     modalControl(recordViewModal, "hide");
 }
 
-async function searchLog() { // 학번에 대한 진료기록 조회
-    // 입력값 받아오기
-    const inputId = document.getElementById("id-input").value;
-
+async function searchLog(studentId) { // 학번에 대한 진료기록 조회
     // 데이터 불러오기
     const { data, error } = await _supabase.from('health_logs')
         .select('*')
         .order('created_at', { ascending: false })
-        .eq("student_id", inputId)
+        .eq("student_id", studentId)
     
     if (error) { alert("학생의 진료기록을 불러오는 중 오류가 발생했습니다.") }
-    if (data.length === 0) { alert("해당하는 학생의 진료기록이 없습니다.") }
 
     // 테이블에 띄우기
-    console.log(data)
     const viewTable = document.getElementById("view-table");
     
     // 각 데이터별로 처리
@@ -778,3 +734,39 @@ async function searchLog() { // 학번에 대한 진료기록 조회
         tr.appendChild(treatmentTd);
     })
 }
+
+// ===============================
+// 모달에서 데이터 저장
+// ===============================
+document.getElementById("direct-submit-btn").addEventListener("click", async () => {
+    // 입력 정보 불러오기
+    const stId = localStorage.getItem("student_id");
+    const eat = document.getElementById('directEat').value === 'true';
+    const allergy = document.getElementById('directAllergy').value === 'true';
+    const cat = document.getElementById('directCat').value;
+    const detail = document.getElementById('directDetail').value;
+    const treatment = document.getElementById('directTreatment').value;
+
+    // 무결성 검사
+    if (!stId) { return alert("학번이 입력되지 않았습니다.")}
+
+    // DB에 데이터 저장 (treatment_record 추가)
+    const { error } = await _supabase.from('health_logs').insert([{
+        student_id: stId, 
+        name: null, 
+        eat: eat, 
+        allergy: allergy, 
+        symptom_cat: cat, 
+        symptom_detail: detail, 
+        treatment_record: treatment, // 추가됨
+        status: 'done' // 현장 접수 후 완료 처리를 위해 일단 대기로 둠 (원하면 'done'으로 변경 가능)
+    }]);
+
+    if (error) {
+        alert("오류 발생: " + error.message);
+    } else {
+        await fetchLogs();
+        await init();
+        await searchLog(stId);
+    }  
+})

@@ -318,14 +318,6 @@ td {
   cursor: pointer;
 }
 
-/* 엑셀 파일 다운로드 */
-#select-period {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 20px 0px; /* 상하 좌우 */
-}
-
 
 
 /*점검용코드*/
