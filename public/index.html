@@ -130,7 +130,6 @@
           <div>
             <h3>진료 대기 현황</h3>
             <!-- <button type="button" onclick="manualInput()">수동 입력</button> -->
-            <button type="button" onclick="loadRecord()">개인별 진료기록 확인</button>
           </div>
           <div class="mini-controls">
             <button onclick="downloadModal()" class="icon-btn" title="엑셀 다운로드"><i class="fa-solid fa-file-csv" style="font-size: 2.8vh; transform: translate(0.55vh, 0vh);"></i></button>
@@ -365,7 +364,7 @@
             <input type="text" id="directTreatment" class="directTreatment" />
           </td>
           <td>
-            <button type="button" id="direct-submit-btn" class="blue-btn">+ 추가</button>
+            <button type="button" id="direct-submit-btn" class="blue-btn" onclick="submitData()">+ 추가</button>
           </td>
         </tr>
       </table>

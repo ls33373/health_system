@@ -738,7 +738,7 @@ async function searchLog(studentId) { // 학번에 대한 진료기록 조회
 // ===============================
 // 모달에서 데이터 저장
 // ===============================
-document.getElementById("direct-submit-btn").addEventListener("click", async () => {
+async function submitData() {
     // 입력 정보 불러오기
     const stId = localStorage.getItem("student_id");
     const eat = document.getElementById('directEat').value === 'true';
@@ -769,4 +769,4 @@ document.getElementById("direct-submit-btn").addEventListener("click", async () 
         await init();
         await searchLog(stId);
     }  
-})
+}
