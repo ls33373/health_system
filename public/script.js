@@ -669,7 +669,7 @@ function loadRecord() { // 모달 띄우기
 function closeViewModal() {
     const recordViewModal = document.getElementById("record-view-modal");
 
-    // 내용 초기화
+    // 조회 결과 초기화
     const viewTable = document.getElementById("view-table");
     const closeBtn = document.getElementById("close-btn");
     const viewContent = document.getElementById("record-view-content");
@@ -680,6 +680,17 @@ function closeViewModal() {
     for (let i = 2; i < rows.length; i++) {
         rows[i].remove();
     }
+
+    // 입력 내용 초기화
+    const eat = document.getElementById('directEat');
+    const allergy = document.getElementById('directAllergy');
+    const cat = document.getElementById('directCat');
+    const detail = document.getElementById('directDetail');
+    const treatment = document.getElementById('directTreatment');
+
+    eat.value = "false"; allergy.value = "false";
+    cat.value = "기타";
+    detail.value = ""; treatment.value = "";
 
     // 모달 숨기기
     modalControl(recordViewModal, "hide");
