@@ -312,27 +312,10 @@ function downloadModal() {
 function startDownload() {
     const startDate = document.getElementById("select-start-date").value;
     const endDate = document.getElementById("select-end-date").value;
-
-    // console.log(dateFormatting(startDate, "yyyy년 mm월 dd일"), dateFormatting(endDate, "yyyy년 mm월 dd일"),
-    //             dateFormatting(startDate, "ISO-m"), dateFormatting(endDate, "ISO-M"))
-
-
-    // const radios = document.getElementsByName("period");
-    // var checkedBtn;
-
-    // radios.forEach(btn => {
-    //     if (btn.checked) { checkedBtn = btn }
-    // });
-
-    // // 데이터 시작 날짜 계산
-    // const today = new Date();
-    // const startDate = new Date(today.setDate(today.getDate() - Number(checkedBtn.value)));
     
     // 엑셀 파일 다운로드
     downloadCSV(`보건실 이용 기록(${dateFormatting(startDate, "yyyy년 mm월 dd일")}~${dateFormatting(endDate, "yyyy년 mm월 dd일")})`,
                 dateFormatting(startDate, "ISO-m"), dateFormatting(endDate, "ISO-M"));
-
-    // console.log(dateFormatting(startDate, "ISO-m"), dateFormatting(new Date(), "ISO-M"))
 }
 
 // ========================
@@ -671,7 +654,7 @@ function closeViewModal() {
 
     // 조회 결과 초기화
     const viewTable = document.getElementById("view-table");
-    const closeBtn = document.getElementById("close-btn");
+    const closeBtn = document.getElementById("close-btn");  
     const viewContent = document.getElementById("record-view-content");
 
     const rows = viewTable.querySelectorAll("tr"); 
@@ -706,7 +689,7 @@ async function searchLog(studentId) { // 학번에 대한 진료기록 조회
     if (error) { alert("학생의 진료기록을 불러오는 중 오류가 발생했습니다.") }
 
     // 테이블에 띄우기
-    const viewTable = document.getElementById("view-table");
+    const viewTable = document.getElementById("view-table-body");
     
     // 각 데이터별로 처리
     data.forEach(d => {

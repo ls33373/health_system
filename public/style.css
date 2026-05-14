@@ -318,6 +318,13 @@ td {
   cursor: pointer;
 }
 
+/* 개인별 진료기록 확인 테이블의 헤더 고정 */
+#view-table thead {
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255); /* 뒷배경이 비치지 않도록 불투명하게 설정 */
+  z-index: 5; /* 스크롤되는 내용보다 위에 표시되도록 설정 */
+}
 
 
 /*점검용코드*/

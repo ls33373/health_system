@@ -317,59 +317,64 @@
       <p id="modal-title" style="font-size: 3vh; font-weight: bold; margin-bottom: 1vh; color: var(--text-dark);">상세 진료기록 확인</p>
       <p id="modal-subtitle" style="font-size: 2vh; margin-bottom: 1vh; color: var(--text-dark);"></p>
 
-      <table id="view-table">
-        <tr>
-          <td>시간</td>
-          <td>식사</td>
-          <td>알러지</td>
-          <td>증상</td>
-          <td>자세한 증상</td>
-          <td>진료/처방 내역</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <select id="directEat" class="directEat">
-              <option value="false" id="eat-F">X</option>
-              <option value="true" id="eat-T">O</option>
-            </select>
-          </td>
-          <td>
-            <select id="directAllergy" class="directAllergy">
-              <option value="false" id="allergy-F">X</option>
-              <option value="true" id="allergy-T">O</option>
-            </select>
-          </td>
-          <td>
-            <select id="directCat" class="directCat">
-              <option value="두통" id="cat-1">두통</option>
-              <option value="호흡기" id="cat-2">호흡기</option>
-              <option value="소화기" id="cat-3">소화기</option>
-              <option value="순환기" id="cat-4">순환기</option>
-              <option value="외상" id="cat-5">외상</option>
-              <option value="피부" id="cat-6">피부</option>
-              <option value="근골격계" id="cat-7">근골격계</option>
-              <option value="비뇨생식기계" id="cat-8">비뇨생식기계</option>
-              <option value="신경정신계" id="cat-9">신경정신계</option>
-              <option value="이비인후과" id="cat-10">이비인후과</option>
-              <option value="안과" id="cat-11">안과</option>
-              <option value="구강" id="cat-12">구강</option>
-              <option value="기타" id="cat-13">기타</option>
-            </select>
-          </td>
-          <td>
-            <input type="text" id="directDetail" class="directDetail" />
-          </td>
-          <td>
-            <input type="text" id="directTreatment" class="directTreatment" />
-          </td>
-          <td>
-            <button type="button" id="direct-submit-btn" class="blue-btn" onclick="submitData()">+ 추가</button>
-          </td>
-        </tr>
-      </table>
+      <div class="table-container" style="max-height: 50vh;">
+        <table id="view-table">
+          <thead>
+            <tr>
+              <td>시간</td>
+              <td>식사</td>
+              <td>알러지</td>
+              <td>증상</td>
+              <td>자세한 증상</td>
+              <td>진료/처방 내역</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <select id="directEat" class="directEat">
+                  <option value="false" id="eat-F">X</option>
+                  <option value="true" id="eat-T">O</option>
+                </select>
+              </td>
+              <td>
+                <select id="directAllergy" class="directAllergy">
+                  <option value="false" id="allergy-F">X</option>
+                  <option value="true" id="allergy-T">O</option>
+                </select>
+              </td>
+              <td>
+                <select id="directCat" class="directCat">
+                  <option value="두통" id="cat-1">두통</option>
+                  <option value="호흡기" id="cat-2">호흡기</option>
+                  <option value="소화기" id="cat-3">소화기</option>
+                  <option value="순환기" id="cat-4">순환기</option>
+                  <option value="외상" id="cat-5">외상</option>
+                  <option value="피부" id="cat-6">피부</option>
+                  <option value="근골격계" id="cat-7">근골격계</option>
+                  <option value="비뇨생식기계" id="cat-8">비뇨생식기계</option>
+                  <option value="신경정신계" id="cat-9">신경정신계</option>
+                  <option value="이비인후과" id="cat-10">이비인후과</option>
+                  <option value="안과" id="cat-11">안과</option>
+                  <option value="구강" id="cat-12">구강</option>
+                  <option value="기타" id="cat-13">기타</option>
+                </select>
+              </td>
+              <td>
+                <input type="text" id="directDetail" class="directDetail" />
+              </td>
+              <td>
+                <input type="text" id="directTreatment" class="directTreatment" />
+              </td>
+              <td>
+                <button type="button" id="direct-submit-btn" class="blue-btn" onclick="submitData()">+ 추가</button>
+              </td>
+            </tr>
+          </thead>
+          <tbody id="view-table-body"></tbody>
+        </table>
+      </div>
 
-      <button id="close-btn" onclick="closeViewModal()">돌아가기</button>
+      <button id="close-btn" onclick="closeViewModal()" style="margin-top: 5px;">돌아가기</button>
     </div>
   </div>
 
